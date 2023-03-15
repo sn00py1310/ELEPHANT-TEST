@@ -1,59 +1,76 @@
 <script lang="ts">
+  import RegexFilter from "./lib/RegexFilter.svelte";
+
   let original = ``;
   let highlighted = original;
   let newIcs = original;
   let url =
     "https://justcors.com/tl_b26f796/https://campus.kit.edu/sp/webcal/sWi7gc4IYy";
-  let regex = "";
   let toReplace = "";
   let originalIcsElement: HTMLElement;
   let newIcsElement: HTMLElement;
+  let regex: RegExp;
+
+  const DEBOUNCE_INTERVALL = 500;
 
   const request = () => {
-    fetch(url, {})
+    fetch(url)
       .then((x) => x.text())
       .then((x) => {
         // Change u+000d u+000a to u+000a -> remove carriage return
-        original = x.replaceAll(/\r/g, "");
+        original = x.replace(/\r/g, "");
         highlighted = original;
         newIcs = original;
       });
   };
 
-  const highlight = () => {
+  const highlight = (e: CustomEvent<RegExp>) => {
+    regex = e.detail;
     setTimeout(() => {
-      if (regex === "") return;
-      highlighted = original.replaceAll(
-        new RegExp(regex, "gm"),
-        (match) => `<span class="red">${match}</span>`
+      if (regex.source == "(?:)") return;
+      highlighted = original.replace(
+        regex,
+        (match) => `<span class="red highlight">${match}</span>`
       );
-    }, 500);
+      replace();
+    }, DEBOUNCE_INTERVALL);
+  };
+  const replace = () => {
+    newIcs = original.replace(
+      regex,
+      (match) =>
+        `<span class="green highlight">${toReplace.replace(
+          /\$match\$/g,
+          match
+        )}</span>`
+    );
   };
 
-  function scrollSyncNew() {
+  const scrollSyncNew = () => {
     newIcsElement.scrollTop = originalIcsElement.scrollTop;
-  }
-  function scrollSyncOriginal() {
+  };
+  const scrollSyncOriginal = () => {
     originalIcsElement.scrollTop = newIcsElement.scrollTop;
-  }
+  };
 </script>
 
 <main>
   <section id="actionBoard">
-    <input
-      type="text"
-      placeholder="Regex"
-      bind:value={regex}
-      on:keyup={highlight}
-    />
+    <RegexFilter on:change={highlight} />
     <select name="" id="">
       <option value="">global</option>
     </select>
-    <input type="text" placeholder="Replace with" bind:value={toReplace} />
+    <input
+      type="text"
+      placeholder="Replacement (use $match$ to reference the Search match)"
+      bind:value={toReplace}
+      on:keyup={replace}
+    />
     <button> anwenden </button>
   </section>
   <section
     id="originalIcs"
+    class="ics"
     on:scroll={scrollSyncNew}
     bind:this={originalIcsElement}
   >
@@ -62,14 +79,19 @@
       {@html highlighted}
     </span>
   </section>
-  <section id="newIcs" on:scroll={scrollSyncOriginal} bind:this={newIcsElement}>
+  <section
+    id="newIcs"
+    class="ics"
+    on:scroll={scrollSyncOriginal}
+    bind:this={newIcsElement}
+  >
     <h1>New Calender</h1>
     <span>
-      {newIcs}
+      {@html newIcs}
     </span>
   </section>
-  <section id="oldCalender">Old calender</section>
-  <section id="newCalender">new Calender</section>
+  <section id="oldCalender" class="calender">Old calender</section>
+  <section id="newCalender" class="calender">new Calender</section>
   <section id="url">
     <input type="text" placeholder="Calender url" bind:value={url} />
     <button on:click={request}>laden</button>
@@ -87,18 +109,20 @@
 
   #originalIcs {
     grid-area: oldIcs;
-    overflow-y: auto;
   }
 
+  .ics {
+    overflow-y: auto;
+  }
+  .ics span {
+    white-space: pre;
+  }
   #originalIcs span {
     max-height: 100%;
-    color: var(--ctp-macchiato-green);
-    white-space: pre;
+    /* color: var(--ctp-macchiato-green); */
   }
   #newIcs {
     grid-area: newIcs;
-    overflow-y: auto;
-    white-space: pre;
   }
   #oldCalender {
     grid-area: cal1;

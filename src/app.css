@@ -25,15 +25,45 @@ body {
 .app {
   height: 100%;
 }
-.red {
-  background-color: rgba(237, 135, 150, 0.5) !important;
-}
-.red::after {
-  background-color: rgba(237, 135, 150, 0.5) !important;
+
+.highlight::after {
+  background-color: inherit;
   content: "";
   min-width: 1px;
   display: inline-block;
 }
+.red {
+  background-color: rgba(237, 135, 150, 0.5) !important;
+}
+
+.green {
+  background-color: rgba(166, 218, 149, 0.5) !important;
+}
+.inputSuffix {
+  width: 100%;
+  display: flex;
+  background-color: var(--ctp-macchiato-surface0);
+  border-radius: 5px;
+}
+
+.inputSuffix input {
+  flex-grow: 1;
+}
+.inputSuffix button {
+  font-weight: 1000;
+  margin: auto 5px;
+  padding: 5px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.inputSuffix button.active {
+  background-color: var(--ctp-macchiato-overlay0);
+}
+.inputSuffix button:hover {
+  background-color: var(--ctp-macchiato-overlay1);
+}
+
 body {
   background: var(--ctp-macchiato-base);
 }
