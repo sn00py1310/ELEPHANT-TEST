@@ -1,0 +1,80 @@
+@import "@catppuccin/palette/style";
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  color: var(--ctp-mocha-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+.app {
+  height: 100%;
+}
+.red {
+  background-color: rgba(237, 135, 150, 0.5) !important;
+}
+.red::after {
+  background-color: rgba(237, 135, 150, 0.5) !important;
+  content: "";
+  min-width: 1px;
+  display: inline-block;
+}
+body {
+  background: var(--ctp-macchiato-base);
+}
+input,
+button,
+select {
+  padding: 0.5em;
+  font-size: 20px;
+  outline: none;
+  border: none;
+  border-radius: 5px;
+  background-color: var(--ctp-macchiato-surface0);
+  color: var(--ctp-macchiato-text);
+}
+button {
+  font-weight: bold;
+  cursor: pointer;
+}
+select {
+  cursor: pointer;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ol,
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+ol,
+ul {
+  list-style: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
