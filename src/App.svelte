@@ -1,5 +1,6 @@
 <script lang="ts">
   import RegexFilter from "./lib/RegexFilter.svelte";
+  import Calender from "./lib/Calender.svelte";
 
   let original = ``;
   let highlighted = original;
@@ -89,8 +90,8 @@
       {@html newIcs}
     </span>
   </section>
-  <section id="oldCalender" class="calender">Old calender</section>
-  <section id="newCalender" class="calender">new Calender</section>
+  <section id="oldCalender" class="calender"><Calender /></section>
+  <section id="newCalender" class="calender"><Calender /></section>
   <section id="url">
     <input type="text" placeholder="Calender url" bind:value={url} />
     <button on:click={request}>laden</button>
