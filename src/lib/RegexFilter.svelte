@@ -23,6 +23,6 @@
 </script>
 
 <div class="inputSuffix">
-  <input type="text" placeholder="Search" bind:value={regex} />
+  <textarea placeholder="Search" bind:value={regex} />
   <button class={!escaped ? "active" : ""} on:click={toggleEsc}>(.*)</button>
 </div>

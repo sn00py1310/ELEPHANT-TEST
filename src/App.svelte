@@ -60,8 +60,7 @@
     <select name="" id="">
       <option value="">global</option>
     </select>
-    <input
-      type="text"
+    <textarea
       placeholder="Replacement (use $match$ to reference the Search match)"
       bind:value={toReplace}
       on:keyup={replace}
