@@ -1,19 +1,20 @@
 <script lang="ts">
   import RegexFilter from "./lib/RegexFilter.svelte";
-  import Calender from "./lib/Calender.svelte";
+  import Calender from "./lib/Calendar/Calendar.svelte";
+  import DashBoard from "./lib/DashBoard.svelte";
+  import IcsDisplay from "./lib/IcsDisplay.svelte";
 
-  let original = ``;
-  let highlighted = original;
-  let newIcs = original;
-  let rawIcs = original;
   let url =
     "https://justcors.com/tl_c49c923/https://campus.kit.edu/sp/webcal/sWi7gc4IYy";
-  let toReplace = "";
-  let originalIcsElement: HTMLElement;
-  let newIcsElement: HTMLElement;
   let regex: RegExp;
+  let toReplace: string = "";
+  let icsData = "";
+  let newIcsData = "";
 
-  const DEBOUNCE_INTERVALL = 2000;
+  let scrollTop = 0;
+
+  let fullCalendar = false;
+  const DEBOUNCE_INTERVALL = 1000;
 
   const request = () => {
     fetch(url)
@@ -21,86 +22,51 @@
       .then((x) => {
         // Change u+000d u+000a to u+000a -> remove carriage return
         // Also remove "/"", who needs is anyways...
-        original = x.replace(/\r/g, "").replace(/\\/g, "");
-        highlighted = original;
-        newIcs = original;
+        icsData = x.replace(/\r/g, "").replace(/\\/g, "");
+        newIcsData = icsData;
       });
   };
 
-  const highlight = (e: CustomEvent<RegExp>) => {
-    regex = e.detail;
-    setTimeout(() => {
-      if (regex.source == "(?:)") return;
-      highlighted = original.replace(
-        regex,
-        (match) => `<span class="red highlight">${match}</span>`
-      );
-      replace();
-    }, DEBOUNCE_INTERVALL);
-  };
-  const replace = () => {
-    newIcs = original.replace(
-      regex,
-      (match) =>
-        `<span class="green highlight">${toReplace.replace(
-          /\$match\$/g,
-          match
-        )}</span>`
-    );
-    rawIcs = original.replace(regex, (match) =>
-      toReplace.replace(/\$match\$/g, match)
-    );
-  };
+  let timer: number;
 
-  const scrollSyncNew = () => {
-    newIcsElement.scrollTop = originalIcsElement.scrollTop;
-  };
-  const scrollSyncOriginal = () => {
-    originalIcsElement.scrollTop = newIcsElement.scrollTop;
+  const debounce = (callback: () => void) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      callback();
+    }, DEBOUNCE_INTERVALL);
   };
 </script>
 
-<main>
-  <!-- <main class="fullCal"> -->
+<main class={fullCalendar ? "fullCal" : ""}>
   <section id="actionBoard">
-    <RegexFilter on:change={highlight} />
-    <select name="" id="">
-      <option value="">global</option>
-    </select>
-    <textarea
-      placeholder="Replacement (use $match$ to reference the Search match)"
-      bind:value={toReplace}
-      on:keyup={replace}
+    <DashBoard
+      on:regexChange={({ detail }) => debounce(() => (regex = detail))}
+      on:replaceChange={({ detail }) => debounce(() => (toReplace = detail))}
+      on:toggleCalendar={() => (fullCalendar = !fullCalendar)}
     />
-    <button> anwenden </button>
   </section>
-  <section
-    id="originalIcs"
-    class="ics"
-    on:scroll={scrollSyncNew}
-    bind:this={originalIcsElement}
-  >
+
+  <section id="originalIcs" class="ics">
     <h1>Orginal Calender</h1>
-    <span>
-      {@html highlighted}
-    </span>
+    <IcsDisplay {icsData} {regex} bind:scrollTop highlightClass="red" />
   </section>
-  <section
-    id="newIcs"
-    class="ics"
-    on:scroll={scrollSyncOriginal}
-    bind:this={newIcsElement}
-  >
+  <section id="newIcs" class="ics">
     <h1>New Calender</h1>
-    <span>
-      {@html newIcs}
-    </span>
+
+    <IcsDisplay
+      {icsData}
+      {regex}
+      bind:scrollTop
+      replace={toReplace}
+      highlightClass="green"
+      on:newIcs={({ detail }) => (newIcsData = detail)}
+    />
   </section>
   <section id="oldCalender" class="calender">
-    <Calender calender={original} />
+    <Calender calendar={icsData} full={fullCalendar} />
   </section>
   <section id="newCalender" class="calender">
-    <Calender calender={rawIcs} />
+    <Calender calendar={newIcsData} full={fullCalendar} />
   </section>
   <section id="url">
     <input type="text" placeholder="Calender url" bind:value={url} />
@@ -112,25 +78,17 @@
 <style>
   #actionBoard {
     grid-area: board;
-    display: grid;
-    gap: 1em;
-    grid-template: 1fr 1fr / 1fr 1fr;
   }
-
+  .ics {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    max-height: 50em;
+  }
   #originalIcs {
     grid-area: oldIcs;
   }
 
-  .ics {
-    overflow-y: auto;
-  }
-  .ics span {
-    white-space: pre;
-  }
-  #originalIcs span {
-    max-height: 100%;
-    /* color: var(--ctp-macchiato-green); */
-  }
   #newIcs {
     grid-area: newIcs;
   }

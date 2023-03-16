@@ -5,16 +5,20 @@
   import { RRule } from "rrule";
   import type { Entry } from "./Ical";
 
-  export let calender = null;
+  export let calendar = null;
+  export let full = false;
 
   let date = dayjs();
   const cal = new Calendar(1);
 
   let parsedData: { date: Number; entries: Entry[] }[][] = [];
+  let displayData: { date: Number; entries: Entry[] }[][] = [];
 
   let data: Entry[] = [];
 
-  $: if (calender) generate(calender);
+  $: if (calendar) generate(calendar);
+  $: if (date) insertDataToCalender();
+  $: displayData = full ? parsedData : [parsedData[0]];
 
   const generate = (calender: string) => {
     data = [];
@@ -73,10 +77,7 @@
       });
       parsedData.push(nWeek);
     });
-    parsedData = [parsedData[0]];
   };
-
-  $: if (date) insertDataToCalender();
 </script>
 
 <div id="actions">
@@ -94,7 +95,7 @@
     <th>sa</th>
     <th>su</th>
   </tr>
-  {#each parsedData as week}
+  {#each displayData as week}
     <tr>
       {#each week as day}
         <td>

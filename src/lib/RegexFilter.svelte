@@ -8,7 +8,7 @@
   $: {
     try {
       let out = RegExp(escaped ? escapeRegExp(regex) : regex, "g");
-      dispatch("change", out);
+      dispatch("regexChange", out);
     } catch (error) {
       console.warn("ignore regex error...");
     }
@@ -26,3 +26,9 @@
   <textarea placeholder="Search" bind:value={regex} />
   <button class={!escaped ? "active" : ""} on:click={toggleEsc}>(.*)</button>
 </div>
+
+<style>
+  .inputSuffix {
+    height: 100%;
+  }
+</style>
