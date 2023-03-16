@@ -1,5 +1,4 @@
 <script lang="ts">
-  import RegexFilter from "./lib/RegexFilter.svelte";
   import Calender from "./lib/Calendar/Calendar.svelte";
   import DashBoard from "./lib/DashBoard.svelte";
   import IcsDisplay from "./lib/IcsDisplay.svelte";
@@ -16,7 +15,7 @@
   let scrollTop = 0;
 
   let fullCalendar = false;
-  const DEBOUNCE_INTERVALL = 1000;
+  const DEBOUNCE_INTERVALL = 1500;
 
   let send;
 
@@ -94,7 +93,7 @@
     <button on:click={request}>laden</button>
   </section>
   <section id="apiRequest">
-    <ApiRequest {url} {replacements} bind:send />
+    <ApiRequest {url} bind:replacements bind:send />
   </section>
 </main>
 
