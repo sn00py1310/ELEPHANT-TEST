@@ -8,7 +8,7 @@
   export let scrollTop = 0;
 
   // default: keep match and only add highlight
-  export let replace = "$match$";
+  export let replace = null;
 
   const dispatch = createEventDispatcher();
 
@@ -19,14 +19,18 @@
   $: if (regex || replace) highlighted = highlight(icsData);
   const highlight = (data: string) => {
     if (regex?.source == "(?:)") return;
-    const replacement = (match: string) => replace.replace(/\$match\$/g, match);
-    const raw = data.replace(regex, replacement);
+
+    const raw = data.replace(regex, replace);
     dispatch("newIcs", raw);
-    return data.replace(
-      regex,
-      (match) =>
-        `<span class="${highlightClass} highlight">${replacement(match)}</span>`
-    );
+    return replace != null
+      ? data.replace(
+          regex,
+          `<span class="${highlightClass} highlight">${replace}</span>`
+        )
+      : data.replace(
+          regex,
+          (match) => `<span class="${highlightClass} highlight">${match}</span>`
+        );
   };
 
   const scrolling = () => {

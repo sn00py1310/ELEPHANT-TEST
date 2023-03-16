@@ -3,6 +3,8 @@
   import Calender from "./lib/Calendar/Calendar.svelte";
   import DashBoard from "./lib/DashBoard.svelte";
   import IcsDisplay from "./lib/IcsDisplay.svelte";
+  import ApiRequest from "./lib/ApiRequest/ApiRequest.svelte";
+  import type { SimpleReplacement } from "./lib/ApiRequest/Api";
 
   let url =
     "https://justcors.com/tl_c49c923/https://campus.kit.edu/sp/webcal/sWi7gc4IYy";
@@ -15,6 +17,22 @@
 
   let fullCalendar = false;
   const DEBOUNCE_INTERVALL = 1000;
+
+  let send;
+
+  let replacements: SimpleReplacement[] = [];
+
+  function generateSimpleReplacement() {
+    const replacement: SimpleReplacement = {
+      mode: "globalReplace",
+      replacement: toReplace,
+      matcher: {
+        pattern: regex.source,
+        type: "matches",
+      },
+    };
+    return replacement;
+  }
 
   const request = () => {
     fetch(url)
@@ -43,6 +61,9 @@
       on:regexChange={({ detail }) => debounce(() => (regex = detail))}
       on:replaceChange={({ detail }) => debounce(() => (toReplace = detail))}
       on:toggleCalendar={() => (fullCalendar = !fullCalendar)}
+      on:addReg={() =>
+        (replacements = [generateSimpleReplacement(), ...replacements])}
+      on:send={() => send().then((x) => console.log(x))}
     />
   </section>
 
@@ -72,7 +93,9 @@
     <input type="text" placeholder="Calender url" bind:value={url} />
     <button on:click={request}>laden</button>
   </section>
-  <section id="apiRequest">api request</section>
+  <section id="apiRequest">
+    <ApiRequest {url} {replacements} bind:send />
+  </section>
 </main>
 
 <style>

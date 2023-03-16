@@ -13,7 +13,7 @@
   <div class="left row">
     <RegexFilter on:regexChange />
     <textarea
-      placeholder="Replacement (use $match$ to reference the Search match)"
+      placeholder="Replacement (you can also use matching groups $1)"
       bind:value={toReplace}
       on:keyup={replace}
     />
@@ -22,11 +22,13 @@
     <select name="" id="">
       <option value="">global</option>
     </select>
-    <button> add regex </button>
+    <button on:click={() => dispatch("addReg")}> add regex </button>
     <button on:click={() => dispatch("toggleCalendar")}>
       toggle full calender</button
     >
-    <button class="primeAction"> send api request </button>
+    <button class="primeAction" on:click={() => dispatch("send")}>
+      send api request
+    </button>
   </div>
 </div>
 

@@ -20,6 +20,6 @@ Svelte + TS + Vite
 
 `npm run dev`
 
-### build
+### Build
 
 `npm run build`
