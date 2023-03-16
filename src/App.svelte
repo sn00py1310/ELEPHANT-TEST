@@ -5,21 +5,23 @@
   let original = ``;
   let highlighted = original;
   let newIcs = original;
+  let rawIcs = original;
   let url =
-    "https://justcors.com/tl_b26f796/https://campus.kit.edu/sp/webcal/sWi7gc4IYy";
+    "https://justcors.com/tl_c49c923/https://campus.kit.edu/sp/webcal/sWi7gc4IYy";
   let toReplace = "";
   let originalIcsElement: HTMLElement;
   let newIcsElement: HTMLElement;
   let regex: RegExp;
 
-  const DEBOUNCE_INTERVALL = 500;
+  const DEBOUNCE_INTERVALL = 2000;
 
   const request = () => {
     fetch(url)
       .then((x) => x.text())
       .then((x) => {
         // Change u+000d u+000a to u+000a -> remove carriage return
-        original = x.replace(/\r/g, "");
+        // Also remove "/"", who needs is anyways...
+        original = x.replace(/\r/g, "").replace(/\\/g, "");
         highlighted = original;
         newIcs = original;
       });
@@ -45,6 +47,9 @@
           match
         )}</span>`
     );
+    rawIcs = original.replace(regex, (match) =>
+      toReplace.replace(/\$match\$/g, match)
+    );
   };
 
   const scrollSyncNew = () => {
@@ -56,6 +61,7 @@
 </script>
 
 <main>
+  <!-- <main class="fullCal"> -->
   <section id="actionBoard">
     <RegexFilter on:change={highlight} />
     <select name="" id="">
@@ -90,8 +96,12 @@
       {@html newIcs}
     </span>
   </section>
-  <section id="oldCalender" class="calender"><Calender /></section>
-  <section id="newCalender" class="calender"><Calender /></section>
+  <section id="oldCalender" class="calender">
+    <Calender calender={original} />
+  </section>
+  <section id="newCalender" class="calender">
+    <Calender calender={rawIcs} />
+  </section>
   <section id="url">
     <input type="text" placeholder="Calender url" bind:value={url} />
     <button on:click={request}>laden</button>
@@ -151,8 +161,23 @@
       "board board cal1 cal2" auto
       "oldIcs newIcs url url" 5em
       "oldIcs newIcs api api" 1fr / 1.7fr 1.7fr 1fr 1fr;
+
     gap: 1rem;
     height: 100vh;
+  }
+
+  .fullCal {
+    height: 100%;
+    grid-template:
+      "board board cal1 cal2" auto
+      "oldIcs newIcs cal1 cal2" 5em
+      "oldIcs newIcs cal1 cal2" 1fr / 1.7fr 1.7fr 1fr 1fr;
+  }
+  .fullCal #apiRequest {
+    display: none;
+  }
+  .fullCal #url {
+    display: none;
   }
 
   section {
