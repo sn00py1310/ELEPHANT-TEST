@@ -8,8 +8,6 @@ const router = Router();
 export default router;
 
 router.post("/", async function (req: Request, res: Response) {
-  console.log(req.body);
-
   if (!checkUrl(req.body.url)) {
     res.status(400).send();
     return;
@@ -17,7 +15,6 @@ router.post("/", async function (req: Request, res: Response) {
 
   const calendar = AppDataSource.getRepository(Calendar).create(req.body);
   const results = await AppDataSource.getRepository(Calendar).save(calendar);
-  console.log(calendar);
   return res.send(results);
 });
 
@@ -53,7 +50,6 @@ router.put("/:id/settings", async function (req: Request, res: Response) {
 
 router.get("/:id", async function (req: Request, res: Response) {
   const calendar = await getCalendarById(req.params.id);
-  // TODO fetch an regex calendar
 
   if (calendar === null) {
     res.status(404).send();

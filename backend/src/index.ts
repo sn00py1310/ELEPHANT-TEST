@@ -5,16 +5,42 @@ import dotenv = require("dotenv");
 import { AppDataSource } from "./data-source";
 import { Calendar } from "./entity/Calendar";
 import routes from "./routes";
+import { LessThan } from "typeorm";
 dotenv.config();
+
+const cleanuptInterval = Number(process.env.CALENDAR_CLEANUP_INTERVAL ?? 30); //in minutes
+const keepTime = Number(process.env.CALENDAR_KEEP_TIME ?? 30); //in days
+const PORT = Number(process.env.PORT ?? 3000);
 
 // establish database connection
 AppDataSource.initialize()
   .then(() => {
     console.log("Data Source has been initialized!");
+    clearCalendars();
   })
   .catch((err) => {
     console.error("Error during Data Source initialization:", err);
   });
+
+// Clear old calendars
+async function clearCalendars() {
+  let date = new Date();
+  date.setDate(date.getDate() - keepTime);
+
+  let oldCalendars = await AppDataSource.getRepository(Calendar).find({
+    where: {
+      last_access: LessThan(date),
+    },
+  });
+
+  if (oldCalendars.length !== 0) {
+    let oldCalendarIds = oldCalendars.map((c) => c.id);
+    console.log(`Remove ${oldCalendarIds.length} old calendars`);
+    AppDataSource.getRepository(Calendar).delete(oldCalendarIds);
+  }
+
+  setTimeout(clearCalendars, cleanuptInterval * 60 * 1000);
+}
 
 // create and setup express app
 const app = express();
@@ -45,17 +71,10 @@ app.get("/calendars", async function (req: Request, res: Response) {
   res.json(calendars);
 });
 
-
-
-
-
 app.use("/calendar", routes.calendar);
 app.use("/cors-proxy", routes.corsProxy);
 
-
-
 // start express server
-const PORT: any = process.env.PORT ?? 3000;
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
 });

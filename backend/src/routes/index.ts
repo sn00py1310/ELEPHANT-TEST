@@ -3,6 +3,7 @@ import corsProxy from "./cors-proxy";
 
 import { AppDataSource } from "../data-source";
 import { Calendar } from "../entity/Calendar";
+import { Url } from "url";
 
 export default {
   calendar,
@@ -11,14 +12,10 @@ export default {
 
 export function checkUrl(input: string | URL): boolean {
   let url: URL;
-  if (typeof input === "string") {
-    try {
-      url = new URL(input);
-    } catch (error: any) {
-      return false;
-    }
-  } else {
-    url = input;
+  try {
+    url = new URL(input.toString());
+  } catch (error: any) {
+    return false;
   }
 
   if (url.protocol != "https:") return false;

@@ -16,17 +16,15 @@ router.get("/", async function (req: Request, res: Response) {
   }
 
 
-  let url = req.params.url;
+  let url = req.query.url;
   if (!checkUrl(url)) {
     res.status(403).send();
     return;
   }
 
-  // TODO request and send response
   const tmp = await fetch(url);
   const body = await tmp.text();
   
-//   res.set("Content-Type", tmp.headers.get("content-type"));
   res.set("content-type", "text/plain");
   res.status(tmp.status).send(body);
 });
