@@ -58,7 +58,7 @@
       on:replaceChange={({ detail }) => debounce(() => (toReplace = detail))}
       on:toggleCalendar={() => (fullCalendar = !fullCalendar)}
       on:addReg={() =>
-        (replacements = [generateSimpleReplacement(), ...replacements])}
+        (replacements = [...replacements, generateSimpleReplacement()])}
       on:send={() => send().then((x) => console.log(x))}
     />
   </section>
