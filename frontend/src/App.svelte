@@ -23,18 +23,15 @@
 
   function generateSimpleReplacement() {
     const replacement: SimpleReplacement = {
-      mode: "globalReplace",
+      mode: "globalRegex",
       replacement: toReplace,
-      matcher: {
-        pattern: regex.source,
-        type: "matches",
-      },
+      pattern: regex.source
     };
     return replacement;
   }
 
   const request = () => {
-    fetch(url)
+    fetch(`http://localhost:3000/cors-proxy?url=` + encodeURIComponent(url))
       .then((x) => x.text())
       .then((x) => {
         // Change u+000d u+000a to u+000a -> remove carriage return

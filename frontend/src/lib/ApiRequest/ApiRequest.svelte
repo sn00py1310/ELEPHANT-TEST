@@ -6,14 +6,13 @@
 
   let blockView = true;
 
-  const elephantBackend =
-    "https://elephant-staging.snoopys.xyz/api/v1/calendar/";
+  const elephantBackend = "http://localhost:3000/calendar";
 
   export const send = () => {
     return fetch(elephantBackend, {
       method: "POST",
-      body: JSON.stringify(generated),
-      mode: "no-cors",
+      headers: {"content-type": "application/json"},
+      body: JSON.stringify(generated),  
     });
   };
 
@@ -30,7 +29,7 @@
         <div id="boxReplacement">
           <div id="textReplacement">
             <div>
-              {replacement.matcher.pattern}
+              {replacement.pattern}
             </div>
             <span id="arrow">-></span>
             <div>
