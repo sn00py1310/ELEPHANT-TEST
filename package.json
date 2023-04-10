@@ -1,0 +1,17 @@
+{
+  "name": "elephant",
+  "version": "1.0.0",
+  "description": "elephant is a very simple ics proxy. You can change the ics files with regex.",
+  "main": "index.js",
+  "scripts": {
+    "install": "npm install --prefix backend && npm install --prefix frontend",
+    "start": "concurrently \"npm run start-backend\" \"npm run start-frontend\"",
+    "start-backend": "npm run start --prefix backend",
+    "start-frontend": "npm run dev --prefix frontend"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^8.0.1"
+  }
+}
