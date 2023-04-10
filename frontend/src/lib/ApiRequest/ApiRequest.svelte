@@ -17,7 +17,7 @@
     });
   };
 
-  $: generated = { url, settings: { replacements: replacements.reverse() } };
+  $: generated = { url, settings: { replacements: replacements } };
 </script>
 
 <button on:click={() => (blockView = !blockView)}>toggle</button>

@@ -10,9 +10,14 @@
   let url = "https://campus.kit.edu/sp/webcal/sWi7gc4IYy";
   $: if (url) corsProxy.searchParams.set("url", url);
 
+  let changeHistory: string[] = [];
+
+  const addReg = () => {
+    changeHistory = [newIcsData, ...changeHistory];
+    replacements = [...replacements, generateSimpleReplacement()];
+  };
   let regex: RegExp;
   let toReplace: string = "";
-  let icsData = "";
   let newIcsData = "";
 
   let scrollTop = 0;
@@ -51,8 +56,9 @@
       .then((x) => {
         // Change u+000d u+000a to u+000a -> remove carriage return
         // Also remove "/"", who needs it anyways...
-        icsData = x.replace(/\r/g, "").replace(/\\/g, "");
+        const icsData = x.replace(/\r/g, "").replace(/\\/g, "");
         newIcsData = icsData;
+        changeHistory = [icsData];
       });
   };
 
@@ -92,21 +98,25 @@
         on:regexChange={({ detail }) => debounce(() => (regex = detail))}
         on:replaceChange={({ detail }) => debounce(() => (toReplace = detail))}
         on:toggleCalendar={() => (fullCalendar = !fullCalendar)}
-        on:addReg={() =>
-          (replacements = [...replacements, generateSimpleReplacement()])}
+        on:addReg={addReg}
         on:send={sendRequest}
       />
     </section>
 
     <section id="originalIcs" class="ics">
       <h1>Orginal Calendar</h1>
-      <IcsDisplay {icsData} {regex} bind:scrollTop highlightClass="red" />
+      <IcsDisplay
+        icsData={changeHistory[0]}
+        {regex}
+        bind:scrollTop
+        highlightClass="red"
+      />
     </section>
     <section id="newIcs" class="ics">
       <h1>New Calendar</h1>
 
       <IcsDisplay
-        {icsData}
+        icsData={changeHistory[0]}
         {regex}
         bind:scrollTop
         replace={toReplace}
@@ -115,7 +125,7 @@
       />
     </section>
     <section id="oldCalender" class="calender">
-      <Calendar calendar={icsData} full={fullCalendar} />
+      <Calendar calendar={changeHistory[0]} full={fullCalendar} />
     </section>
     <section id="newCalender" class="calender">
       <Calendar calendar={newIcsData} full={fullCalendar} />
