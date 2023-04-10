@@ -1,12 +1,15 @@
 <script lang="ts">
-  import Calender from "./lib/Calendar/Calendar.svelte";
+  import Calendar from "./lib/Calendar/Calendar.svelte";
   import DashBoard from "./lib/DashBoard.svelte";
   import IcsDisplay from "./lib/IcsDisplay.svelte";
   import ApiRequest from "./lib/ApiRequest/ApiRequest.svelte";
   import type { SimpleReplacement } from "./lib/ApiRequest/Api";
+  import { BACKEND, CALENDAR_ROUTE, DEBOUNCE_INTERVAL } from "../environment";
 
-  let url =
-    "https://justcors.com/tl_c49c923/https://campus.kit.edu/sp/webcal/sWi7gc4IYy";
+  const corsProxy = new URL("cors-proxy", BACKEND);
+  let url = "https://campus.kit.edu/sp/webcal/sWi7gc4IYy";
+  $: if (url) corsProxy.searchParams.set("url", url);
+
   let regex: RegExp;
   let toReplace: string = "";
   let icsData = "";
@@ -15,27 +18,40 @@
   let scrollTop = 0;
 
   let fullCalendar = false;
-  const DEBOUNCE_INTERVALL = 1500;
 
-  let send;
+  let send: () => Promise<Response>;
+  let id: string;
+
+  const sendRequest = () => {
+    send()
+      .then((x) => x.json())
+      .then((res: { id: string }) => {
+        console.log(id);
+        id = res.id;
+        finished = true;
+      });
+  };
 
   let replacements: SimpleReplacement[] = [];
+
+  // Should use a router. Anyways...
+  let finished = false;
 
   function generateSimpleReplacement() {
     const replacement: SimpleReplacement = {
       mode: "globalRegex",
       replacement: toReplace,
-      pattern: regex.source
+      pattern: regex.source,
     };
     return replacement;
   }
 
   const request = () => {
-    fetch(`http://localhost:3000/cors-proxy?url=` + encodeURIComponent(url))
+    fetch(corsProxy)
       .then((x) => x.text())
       .then((x) => {
         // Change u+000d u+000a to u+000a -> remove carriage return
-        // Also remove "/"", who needs is anyways...
+        // Also remove "/"", who needs it anyways...
         icsData = x.replace(/\r/g, "").replace(/\\/g, "");
         newIcsData = icsData;
       });
@@ -47,54 +63,88 @@
     clearTimeout(timer);
     timer = setTimeout(() => {
       callback();
-    }, DEBOUNCE_INTERVALL);
+    }, DEBOUNCE_INTERVAL);
   };
 </script>
 
-<main class={fullCalendar ? "fullCal" : ""}>
-  <section id="actionBoard">
-    <DashBoard
-      on:regexChange={({ detail }) => debounce(() => (regex = detail))}
-      on:replaceChange={({ detail }) => debounce(() => (toReplace = detail))}
-      on:toggleCalendar={() => (fullCalendar = !fullCalendar)}
-      on:addReg={() =>
-        (replacements = [...replacements, generateSimpleReplacement()])}
-      on:send={() => send().then((x) => console.log(x))}
-    />
-  </section>
+{#if finished}
+  <main id="finish">
+    <div id="wrapper">
+      <h1>Calendar Proxy created</h1>
 
-  <section id="originalIcs" class="ics">
-    <h1>Orginal Calender</h1>
-    <IcsDisplay {icsData} {regex} bind:scrollTop highlightClass="red" />
-  </section>
-  <section id="newIcs" class="ics">
-    <h1>New Calender</h1>
+      <div>
+        <h2>Your Id is:</h2>
+        <input type="text" readonly value={id} />
+      </div>
+      <div>
+        <h2>And your url is:</h2>
+        <input
+          type="text"
+          readonly
+          value={new URL(`${CALENDAR_ROUTE}/${id}`, BACKEND).toString()}
+        />
+      </div>
+    </div>
+  </main>
+{:else}
+  <main class={fullCalendar ? "fullCal" : ""}>
+    <section id="actionBoard">
+      <DashBoard
+        on:regexChange={({ detail }) => debounce(() => (regex = detail))}
+        on:replaceChange={({ detail }) => debounce(() => (toReplace = detail))}
+        on:toggleCalendar={() => (fullCalendar = !fullCalendar)}
+        on:addReg={() =>
+          (replacements = [...replacements, generateSimpleReplacement()])}
+        on:send={sendRequest}
+      />
+    </section>
 
-    <IcsDisplay
-      {icsData}
-      {regex}
-      bind:scrollTop
-      replace={toReplace}
-      highlightClass="green"
-      on:newIcs={({ detail }) => (newIcsData = detail)}
-    />
-  </section>
-  <section id="oldCalender" class="calender">
-    <Calender calendar={icsData} full={fullCalendar} />
-  </section>
-  <section id="newCalender" class="calender">
-    <Calender calendar={newIcsData} full={fullCalendar} />
-  </section>
-  <section id="url">
-    <input type="text" placeholder="Calender url" bind:value={url} />
-    <button on:click={request}>laden</button>
-  </section>
-  <section id="apiRequest">
-    <ApiRequest {url} bind:replacements bind:send />
-  </section>
-</main>
+    <section id="originalIcs" class="ics">
+      <h1>Orginal Calendar</h1>
+      <IcsDisplay {icsData} {regex} bind:scrollTop highlightClass="red" />
+    </section>
+    <section id="newIcs" class="ics">
+      <h1>New Calendar</h1>
+
+      <IcsDisplay
+        {icsData}
+        {regex}
+        bind:scrollTop
+        replace={toReplace}
+        highlightClass="green"
+        on:newIcs={({ detail }) => (newIcsData = detail)}
+      />
+    </section>
+    <section id="oldCalender" class="calender">
+      <Calendar calendar={icsData} full={fullCalendar} />
+    </section>
+    <section id="newCalender" class="calender">
+      <Calendar calendar={newIcsData} full={fullCalendar} />
+    </section>
+    <section id="url">
+      <input type="text" placeholder="Calender url" bind:value={url} />
+      <button on:click={request}>laden</button>
+    </section>
+    <section id="apiRequest">
+      <ApiRequest {url} bind:replacements bind:send />
+    </section>
+  </main>
+{/if}
 
 <style>
+  #finish {
+    display: flex;
+  }
+  #wrapper {
+    width: 40rem;
+    margin: auto;
+    display: flex;
+    gap: 1rem;
+    flex-direction: column;
+  }
+  #wrapper * {
+    width: 100%;
+  }
   #actionBoard {
     grid-area: board;
   }
@@ -135,18 +185,21 @@
     padding: 1em;
     display: grid;
     grid-template:
-      "board board cal1 cal2" auto
+      "board board cal1 cal2" minmax(10rem, 1fr)
       "oldIcs newIcs url url" 5em
       "oldIcs newIcs api api" 1fr / 1.7fr 1.7fr 1fr 1fr;
-
     gap: 1rem;
     height: 100vh;
   }
+  .calender {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+  }
 
   .fullCal {
-    height: 100%;
     grid-template:
-      "board board cal1 cal2" auto
+      "board board cal1 cal2" minmax(10rem, 1fr)
       "oldIcs newIcs cal1 cal2" 5em
       "oldIcs newIcs cal1 cal2" 1fr / 1.7fr 1.7fr 1fr 1fr;
   }

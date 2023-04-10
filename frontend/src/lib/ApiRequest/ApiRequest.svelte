@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { BACKEND, CALENDAR_ROUTE } from "../../../environment";
   import type { SimpleReplacement } from "./Api";
 
   export let url = "";
@@ -6,13 +7,13 @@
 
   let blockView = true;
 
-  const elephantBackend = "http://localhost:3000/calendar";
+  const elephantBackend = new URL(CALENDAR_ROUTE, BACKEND);
 
   export const send = () => {
     return fetch(elephantBackend, {
       method: "POST",
-      headers: {"content-type": "application/json"},
-      body: JSON.stringify(generated),  
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(generated),
     });
   };
 

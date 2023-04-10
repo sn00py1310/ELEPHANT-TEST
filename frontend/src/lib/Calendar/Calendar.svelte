@@ -85,46 +85,51 @@
     >{date.format("MMMM YYYY")}</span
   ><button on:click={() => (date = date.add(1, "M"))}>next</button>
 </div>
-<table>
-  <tr>
-    <th>mo</th>
-    <th>th</th>
-    <th>we</th>
-    <th>th</th>
-    <th>fr</th>
-    <th>sa</th>
-    <th>su</th>
-  </tr>
-  {#each displayData as week}
+<div id="overflow">
+  <table>
     <tr>
-      {#each week as day}
-        <td>
-          <div class="day">
-            <span>
-              {day.date}
-            </span>
-            <div>
-              {#each day.entries as entry}
-                <div class="entry">
-                  <span class="time">
-                    {dayjs(entry.start).format("HH:mm")}-{dayjs(
-                      entry.end
-                    ).format("HH:mm")}
-                  </span>
-                  <span>
-                    {entry.summary}
-                  </span>
-                </div>
-              {/each}
-            </div>
-          </div>
-        </td>
-      {/each}
+      <th>mo</th>
+      <th>th</th>
+      <th>we</th>
+      <th>th</th>
+      <th>fr</th>
+      <th>sa</th>
+      <th>su</th>
     </tr>
-  {/each}
-</table>
+    {#each displayData as week}
+      <tr>
+        {#each week as day}
+          <td>
+            <div class="day">
+              <span>
+                {day.date}
+              </span>
+              <div>
+                {#each day.entries as entry}
+                  <div class="entry">
+                    <span class="time">
+                      {dayjs(entry.start).format("HH:mm")}-{dayjs(
+                        entry.end
+                      ).format("HH:mm")}
+                    </span>
+                    <span>
+                      {entry.summary}
+                    </span>
+                  </div>
+                {/each}
+              </div>
+            </div>
+          </td>
+        {/each}
+      </tr>
+    {/each}
+  </table>
+</div>
 
 <style>
+  #overflow {
+    overflow: auto;
+  }
   #actions {
     display: flex;
     justify-content: space-between;
