@@ -184,12 +184,12 @@
   main {
     padding: 1em;
     display: grid;
+    gap: 1rem;
+    height: 100vh;
     grid-template:
       "board board cal1 cal2" minmax(10rem, 1fr)
       "oldIcs newIcs url url" 5em
       "oldIcs newIcs api api" 1fr / 1.7fr 1.7fr 1fr 1fr;
-    gap: 1rem;
-    height: 100vh;
   }
   .calender {
     display: flex;
@@ -215,5 +215,30 @@
     padding: 1em;
     height: 100%;
     background-color: var(--ctp-macchiato-mantle);
+  }
+  @media only screen and (max-width: 1600px) {
+    main {
+      height: 100%;
+      grid-template:
+        "url url" auto
+        "board board" auto
+        "cal1 cal2" auto
+        "oldIcs newIcs" auto
+        "oldIcs newIcs" auto
+        "api api" auto / 1fr 1fr;
+    }
+  }
+  @media only screen and (max-width: 800px) {
+    main {
+      height: 100%;
+      grid-template:
+        "url" auto
+        "board" auto
+        "cal1" auto
+        "cal2" auto
+        "oldIcs" auto
+        "newIcs" auto
+        "api" auto / 1fr;
+    }
   }
 </style>
