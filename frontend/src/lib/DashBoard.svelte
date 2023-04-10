@@ -13,7 +13,7 @@
   <div class="left row">
     <RegexFilter on:regexChange />
     <textarea
-      placeholder="Replacement (you can also use matching groups $1)"
+      placeholder="Replacement (you can also use matching groups -> $1)"
       bind:value={toReplace}
       on:keyup={replace}
     />
