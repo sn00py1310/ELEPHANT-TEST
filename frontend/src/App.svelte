@@ -26,7 +26,6 @@
     send()
       .then((x) => x.json())
       .then((res: { id: string }) => {
-        console.log(id);
         id = res.id;
         finished = true;
       });
@@ -179,6 +178,8 @@
     width: 8em;
   }
   #apiRequest {
+    display: flex;
+    flex-direction: column;
     grid-area: api;
   }
   main {
@@ -189,7 +190,7 @@
     grid-template:
       "board board cal1 cal2" minmax(10rem, 1fr)
       "oldIcs newIcs url url" 5em
-      "oldIcs newIcs api api" 1fr / 1.7fr 1.7fr 1fr 1fr;
+      "oldIcs newIcs api api" minmax(10rem, 1fr) / 1.7fr 1.7fr 1fr 1fr;
   }
   .calender {
     display: flex;

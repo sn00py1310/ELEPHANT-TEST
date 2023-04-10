@@ -17,11 +17,11 @@
     });
   };
 
-  $: generated = { url, settings: { replacements: replacements } };
+  $: generated = { url, settings: { replacements: replacements.reverse() } };
 </script>
 
 <button on:click={() => (blockView = !blockView)}>toggle</button>
-<div>
+<div id="overflow">
   {#if !blockView}
     <pre>{JSON.stringify(generated, undefined, 2)}</pre>
   {:else}
@@ -51,6 +51,9 @@
 </div>
 
 <style>
+  #overflow {
+    overflow: auto;
+  }
   pre {
     white-space: pre-wrap;
   }
