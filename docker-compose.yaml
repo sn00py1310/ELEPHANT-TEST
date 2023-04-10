@@ -1,24 +1,15 @@
 version: "3.8"
 services:
   backend:
-    image: node:alpine
-    # build:
-    #   context: ./backend
-    #   dockerfile: Dockerfile
-    working_dir: /app
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
       - 3000:3000
-    volumes:
-      - ./backend:/app
-    command: npm run start
 
   frontend:
-    image: node:alpine
-    working_dir: /app
-    volumes:
-      - ./frontend:/app
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - 5173:5173
-    expose:
-      - 5173
-    command: npm run dev
+      - 80:80
