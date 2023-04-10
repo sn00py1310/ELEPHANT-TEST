@@ -29,6 +29,7 @@ export async function getCalendarById(id: string): Promise<Calendar> {
   const result = await AppDataSource.getRepository(Calendar).findOneBy({
     id: id,
   });
+  if (!result) return result;
   AppDataSource.getRepository(Calendar).merge(result, {
     last_access: new Date(),
   });
