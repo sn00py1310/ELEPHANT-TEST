@@ -4,7 +4,7 @@ import { Calendar } from "./entity/Calendar";
 
 export const AppDataSource = new DataSource({
   type: "sqlite",
-  database: "./database.sqlite",
+  database: "./data/database.sqlite",
   synchronize: true,
   logging: false,
   entities: [Calendar],
