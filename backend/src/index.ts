@@ -11,6 +11,7 @@ dotenv.config();
 const cleanuptInterval = Number(process.env.CALENDAR_CLEANUP_INTERVAL ?? 30); //in minutes
 const keepTime = Number(process.env.CALENDAR_KEEP_TIME ?? 30); //in days
 const PORT = Number(process.env.PORT ?? 3000);
+const CALENDAR_LISTING = (process.env.CALENDAR_LISTING ?? "") == "true";
 
 // establish database connection
 AppDataSource.initialize()
@@ -65,8 +66,17 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get("/health/status", async function (req: Request, res: Response) {
+  res.status(200).json({"status":"online"});
+})
+
 // Show all calendar
 app.get("/calendars", async function (req: Request, res: Response) {
+  if (!CALENDAR_LISTING) {
+    res.status(403).send();
+    return;
+  }
+
   const calendars = await AppDataSource.getRepository(Calendar).find();
   res.json(calendars);
 });
