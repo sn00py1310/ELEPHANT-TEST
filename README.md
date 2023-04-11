@@ -1,26 +1,25 @@
 # ELEPHANT
 
-Always npm install first:
-
-## Install
-
-`npm install`
-
-Then you can deploy or run for development
-
 ## Deploy
 
-Uses docker and docker-compose.
-First you need to build frontend and backend:
+`docker-compose up --build`
 
-`npm run build`
+Access:
 
-Then docker-compose will automatically build the Dockerfile and serve them.
-
-`docker-compose up`
+- frontend: http://localhost
+- backend: http://localhost:3000
 
 ## Development
 
+### Install
+
+`npm install`
+
 ### Run
 
-`npm start`
+`npm run dev`
+
+Access:
+
+- frontend: http://localhost:5173
+- backend: http://localhost:3000
