@@ -227,7 +227,7 @@
     height: 100%;
     background-color: var(--ctp-macchiato-mantle);
   }
-  @media only screen and (max-width: 1600px) {
+  @media only screen and (max-width: 1800px) {
     main {
       height: 100%;
       grid-template:
@@ -236,10 +236,16 @@
         "cal1 cal2" auto
         "oldIcs newIcs" auto
         "oldIcs newIcs" auto
-        "api api" auto / 1fr 1fr;
+        "api api" auto / 1fr 1fr !important;
+    }
+    .fullCal #apiRequest {
+      display: flex;
+    }
+    .fullCal #url {
+      display: flex;
     }
   }
-  @media only screen and (max-width: 800px) {
+  @media only screen and (max-width: 1200px) {
     main {
       height: 100%;
       grid-template:
@@ -249,7 +255,7 @@
         "cal2" auto
         "oldIcs" auto
         "newIcs" auto
-        "api" auto / 1fr;
+        "api" auto / 1fr !important;
     }
   }
 </style>
