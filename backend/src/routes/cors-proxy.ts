@@ -21,10 +21,14 @@ router.get("/", async function (req: Request, res: Response) {
     res.status(403).send();
     return;
   }
+  const calResponse = await fetch(url);
+  const body = await calResponse.text();
 
-  const tmp = await fetch(url);
-  const body = await tmp.text();
+  let customType = calResponse.headers.get("Content-Type") ?? "text/plain";
+  if (req.query["content-type"] && typeof req.query["content-type"] === "string"){
+    customType = req.query["content-type"]; 
+  }
   
-  res.set("content-type", "text/plain");
-  res.status(tmp.status).send(body);
+  res.set("Content-Type", customType);
+  res.status(calResponse.status).send(body);
 });

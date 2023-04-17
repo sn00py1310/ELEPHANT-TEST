@@ -1,8 +1,10 @@
 FROM node:19-alpine3.16 AS builder
 
 WORKDIR /app
-COPY . .
+
+COPY package*.json .
 RUN npm ci
+COPY . .
 RUN npm run build
 
 

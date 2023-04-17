@@ -78,6 +78,11 @@ router.get("/:id", async function (req: Request, res: Response) {
     }
   });
 
-  res.set("content-type", "text/plain");
+  let customType = data.headers["Content-type"] ?? "text/plain";
+  if (req.query["content-type"]){
+    customType = req.query["content-type"]; 
+  }
+
+  res.set("content-type", customType);
   res.send(calString);
 });
