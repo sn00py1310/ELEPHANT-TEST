@@ -78,8 +78,8 @@ router.get("/:id", async function (req: Request, res: Response) {
     }
   });
 
-  let customType = data.headers["Content-type"] ?? "text/plain";
-  if (req.query["content-type"]){
+  let customType = data.headers.get("Content-Type") ?? "text/plain";
+  if (req.query["content-type"] && typeof req.query["content-type"] === "string"){
     customType = req.query["content-type"]; 
   }
 
