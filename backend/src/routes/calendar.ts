@@ -48,7 +48,16 @@ router.put("/:id/settings", async function (req: Request, res: Response) {
   return res.send(results);
 });
 
+function calendarTimeout(req: Request, res: Response){
+  console.warn("Connection timeout");
+  res.status(408).send();
+}
+
 router.get("/:id", async function (req: Request, res: Response) {
+  res.setTimeout(Number(process.env.REGEX_TIMEOUT) ?? 30000, function(){
+      calendarTimeout(req, res);
+    });
+  
   const calendar = await getCalendarById(req.params.id);
 
   if (calendar === null) {
