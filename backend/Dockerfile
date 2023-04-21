@@ -12,11 +12,9 @@ FROM node:alpine
 
 WORKDIR /app
 COPY package*.json .
+RUN npm ci --omit="dev"
+
 COPY .env.prod .env
 COPY --from=builder /app/build .
-
-
-RUN npm --version
-RUN npm install --omit="dev"
 
 CMD ["npm", "start"]

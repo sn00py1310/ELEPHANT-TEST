@@ -3,7 +3,6 @@ import corsProxy from "./cors-proxy";
 
 import { AppDataSource } from "../data-source";
 import { Calendar } from "../entity/Calendar";
-import { Url } from "url";
 
 export default {
   calendar,
