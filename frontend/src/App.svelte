@@ -72,6 +72,15 @@
   };
 </script>
 
+<section class="notification">
+  <h1>[Bug] Wrong pattern and replacement in the preview.</h1>
+  <p>
+    Due to technical limitations, the pattern and the replacement updates are not live.
+    Please wait a minimum of 1.5 seconds before you use the "add regex" button.
+    We are working on a solution.
+  </p>
+  <button on:click={(event) => event.currentTarget.parentElement.remove()}>X</button>
+</section>
 {#if finished}
   <main id="finish">
     <div id="wrapper">
@@ -141,6 +150,17 @@
 {/if}
 
 <style>
+  section.notification {
+    position: relative;
+    margin: 1rem;
+    background-color: var(--ctp-latte-maroon);
+  }
+  section.notification button {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    background-color: transparent;
+  }
   #finish {
     display: flex;
   }
