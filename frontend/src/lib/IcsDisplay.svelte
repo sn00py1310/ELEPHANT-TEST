@@ -1,37 +1,14 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
+  import { MATCH_COUNT_HIGHLIGHT } from "../../environment";
+  import { createHighLight } from "./stores";
 
-  export let icsData = "";
-  export let regex: RegExp = null;
-  export let highlightClass = "red";
-
+  export let classString = "red";
+  export let replace = false;
   export let scrollTop = 0;
 
-  // default: keep match and only add highlight
-  export let replace = null;
-
-  const dispatch = createEventDispatcher();
+  let display = createHighLight(classString, MATCH_COUNT_HIGHLIGHT, replace);
 
   let self: HTMLElement;
-  let highlighted = "";
-
-  $: if (icsData) highlighted = icsData;
-  $: if (regex || replace) highlighted = highlight(icsData);
-  const highlight = (data: string) => {
-    if (regex?.source == "(?:)") return;
-
-    const raw = data.replace(regex, replace);
-    dispatch("newIcs", raw);
-    return replace != null
-      ? data.replace(
-          regex,
-          `<span class="${highlightClass} highlight">${replace}</span>`
-        )
-      : data.replace(
-          regex,
-          (match) => `<span class="${highlightClass} highlight">${match}</span>`
-        );
-  };
 
   const scrolling = () => {
     if (!self) return;
@@ -43,7 +20,7 @@
 
 <div bind:this={self} on:scroll={scrolling}>
   <span>
-    {@html highlighted}
+    {@html $display}
   </span>
 </div>
 

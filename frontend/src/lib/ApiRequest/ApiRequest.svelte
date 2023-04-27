@@ -1,12 +1,9 @@
 <script lang="ts">
   import { BACKEND, CALENDAR_ROUTE } from "../../../environment";
-  import type { SimpleReplacement } from "./Api";
+  import { apiRequest } from "../stores";
 
   export let url = "";
-  export let replacements: SimpleReplacement[] = [];
-
   let blockView = true;
-
   const elephantBackend = new URL(CALENDAR_ROUTE, BACKEND);
 
   export const send = () => {
@@ -17,7 +14,10 @@
     });
   };
 
-  $: generated = { url, settings: { replacements: replacements } };
+  $: generated = {
+    url,
+    settings: { replacements: $apiRequest.slice().reverse() },
+  };
 </script>
 
 <button on:click={() => (blockView = !blockView)}>toggle</button>
@@ -26,7 +26,7 @@
     <pre>{JSON.stringify(generated, undefined, 2)}</pre>
   {:else}
     <div id="boxLayout">
-      {#each replacements as replacement, i}
+      {#each $apiRequest as replacement, i}
         <div id="boxReplacement">
           <div id="textReplacement">
             <div>
@@ -37,13 +37,7 @@
               {replacement.replacement}
             </div>
           </div>
-          <button
-            id="delete"
-            on:click={() =>
-              (replacements = replacements
-                .slice(0, i)
-                .concat(replacements.slice(i + 1)))}>X</button
-          >
+          <button id="delete" on:click={() => apiRequest.remove(i)}>X</button>
         </div>
       {/each}
     </div>

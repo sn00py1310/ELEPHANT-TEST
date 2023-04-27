@@ -1,24 +1,15 @@
 <script lang="ts">
+  import { BACKEND, CALENDAR_ROUTE } from "../environment";
+  import type { SimpleReplacement } from "./lib/ApiRequest/Api";
+  import ApiRequest from "./lib/ApiRequest/ApiRequest.svelte";
   import Calendar from "./lib/Calendar/Calendar.svelte";
   import DashBoard from "./lib/DashBoard.svelte";
   import IcsDisplay from "./lib/IcsDisplay.svelte";
-  import ApiRequest from "./lib/ApiRequest/ApiRequest.svelte";
-  import type { SimpleReplacement } from "./lib/ApiRequest/Api";
-  import { BACKEND, CALENDAR_ROUTE, DEBOUNCE_INTERVAL } from "../environment";
+  import { icsData, newIcsData } from "./lib/stores";
 
   const corsProxy = new URL("cors-proxy", BACKEND);
   let url = "https://campus.kit.edu/sp/webcal/sWi7gc4IYy";
   $: if (url) corsProxy.searchParams.set("url", url);
-
-  let changeHistory: string[] = [];
-
-  const addReg = () => {
-    changeHistory = [newIcsData, ...changeHistory];
-    replacements = [...replacements, generateSimpleReplacement()];
-  };
-  let regex: RegExp;
-  let toReplace: string = "";
-  let newIcsData = "";
 
   let scrollTop = 0;
 
@@ -36,19 +27,8 @@
       });
   };
 
-  let replacements: SimpleReplacement[] = [];
-
   // Should use a router. Anyways...
   let finished = false;
-
-  function generateSimpleReplacement() {
-    const replacement: SimpleReplacement = {
-      mode: "globalRegex",
-      replacement: toReplace,
-      pattern: regex.source,
-    };
-    return replacement;
-  }
 
   const request = () => {
     fetch(corsProxy)
@@ -56,19 +36,9 @@
       .then((x) => {
         // Change u+000d u+000a to u+000a -> remove carriage return
         // Also remove "/"", who needs it anyways...
-        const icsData = x.replace(/\r/g, "").replace(/\\/g, "");
-        newIcsData = icsData;
-        changeHistory = [icsData];
+        const d = x.replace(/\r/g, "").replace(/\\/g, "");
+        $icsData = d;
       });
-  };
-
-  let timer: number;
-
-  const debounce = (callback: () => void) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      callback();
-    }, DEBOUNCE_INTERVAL);
   };
 </script>
 
@@ -95,47 +65,32 @@
   <main class={fullCalendar ? "fullCal" : ""}>
     <section id="actionBoard">
       <DashBoard
-        on:regexChange={({ detail }) => debounce(() => (regex = detail))}
-        on:replaceChange={({ detail }) => debounce(() => (toReplace = detail))}
         on:toggleCalendar={() => (fullCalendar = !fullCalendar)}
-        on:addReg={addReg}
         on:send={sendRequest}
       />
     </section>
 
     <section id="originalIcs" class="ics">
       <h1>Orginal Calendar</h1>
-      <IcsDisplay
-        icsData={changeHistory[0]}
-        {regex}
-        bind:scrollTop
-        highlightClass="red"
-      />
+      <IcsDisplay classString="red" bind:scrollTop />
     </section>
     <section id="newIcs" class="ics">
       <h1>New Calendar</h1>
 
-      <IcsDisplay
-        icsData={changeHistory[0]}
-        {regex}
-        bind:scrollTop
-        replace={toReplace}
-        highlightClass="green"
-        on:newIcs={({ detail }) => (newIcsData = detail)}
-      />
+      <IcsDisplay classString="green" replace={true} bind:scrollTop />
     </section>
     <section id="oldCalender" class="calender">
-      <Calendar calendar={changeHistory[0]} full={fullCalendar} />
+      <Calendar calendar={$icsData} full={fullCalendar} />
     </section>
     <section id="newCalender" class="calender">
-      <Calendar calendar={newIcsData} full={fullCalendar} />
+      <Calendar calendar={$newIcsData} full={fullCalendar} />
     </section>
     <section id="url">
       <input type="text" placeholder="Calender url" bind:value={url} />
       <button on:click={request}>laden</button>
     </section>
     <section id="apiRequest">
-      <ApiRequest {url} bind:replacements bind:send />
+      <ApiRequest {url} bind:send />
     </section>
   </main>
 {/if}
