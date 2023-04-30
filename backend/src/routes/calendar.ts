@@ -3,6 +3,8 @@ import fetch from "node-fetch";
 import { checkUrl, getCalendarById } from ".";
 import { AppDataSource } from "../data-source";
 import { Calendar } from "../entity/Calendar";
+import { replacer } from "../replacer";
+import { removeBadRegEx } from "../util";
 
 const router = Router();
 export default router;
@@ -13,7 +15,9 @@ router.post("/", async function (req: Request, res: Response) {
     return;
   }
 
-  const calendar = AppDataSource.getRepository(Calendar).create(req.body);
+  let calendar: Calendar = AppDataSource.manager.create(Calendar, req.body);
+  calendar = removeBadRegEx(calendar);
+
   const results = await AppDataSource.getRepository(Calendar).save(calendar);
   return res.send(results);
 });
@@ -72,25 +76,10 @@ router.get("/:id", async function (req: Request, res: Response) {
 
   const data = await fetch(calendar.url.toString());
   let calString = await data.text();
-
-  // Change u+000d u+000a to u+000a -> remove carriage return
-  // Also remove "/"", who needs is anyways...
-  calString = calString.replace(/\r/g, "").replace(/\\/g, "");
-
-
-  calendar.settings.replacements.forEach(replacement => {
-    try {
-      let reg = RegExp(replacement.pattern, "g");
-      calString = calString.replace(reg, replacement.replacement);
-    } catch (error) {
-      console.warn("ignore regex error...");
-    }
-  });
+  calString = replacer(calString, calendar);
 
   let customType = data.headers.get("Content-Type") ?? "text/plain";
-  if (req.query["content-type"] && typeof req.query["content-type"] === "string"){
-    customType = req.query["content-type"]; 
-  }
+  if (req.query["content-type"] && typeof req.query["content-type"] === "string") customType = req.query["content-type"]; 
 
   res.set("content-type", customType);
   res.send(calString);
