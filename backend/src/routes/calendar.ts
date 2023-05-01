@@ -2,20 +2,27 @@ import { Request, Response, Router } from "express";
 import fetch from "node-fetch";
 import { checkUrl, getCalendarById } from ".";
 import { AppDataSource } from "../data-source";
-import { Calendar } from "../entity/Calendar";
+import { Calendar, CreateCalendar } from "../entity/Calendar";
 import { replacer } from "../replacer";
+import { validate } from "class-validator";
+import { plainToClass } from "class-transformer";
 import { removeBadRegEx } from "../util";
 
 const router = Router();
 export default router;
 
 router.post("/", async function (req: Request, res: Response) {
-  if (!checkUrl(req.body.url)) {
+  let createCalendar = plainToClass(CreateCalendar, req.body);
+  let errors = await validate(createCalendar, { whitelist: true, forbidNonWhitelisted: true });
+  if (errors.length) return res.status(400).json(errors);
+  let calendar = plainToClass(Calendar, createCalendar);
+
+  if (!checkUrl(calendar.url)) {
     res.status(400).send();
     return;
   }
 
-  let calendar: Calendar = AppDataSource.manager.create(Calendar, req.body);
+  calendar = AppDataSource.manager.create(Calendar, calendar);
   calendar = removeBadRegEx(calendar);
 
   const results = await AppDataSource.getRepository(Calendar).save(calendar);
@@ -38,8 +45,13 @@ router.get("/:id/settings", async function (req: Request, res: Response) {
 });
 
 router.put("/:id/settings", async function (req: Request, res: Response) {
+  let createCalendar = plainToClass(CreateCalendar, req.body);
+  let errors = await validate(createCalendar, { whitelist: true, forbidNonWhitelisted: true });
+  if (errors.length) return res.status(400).json(errors);
+  let toUpdateCalendar = plainToClass(Calendar, createCalendar);
+
   const calendar = await getCalendarById(req.params.id);
-  AppDataSource.getRepository(Calendar).merge(calendar, req.body);
+  AppDataSource.getRepository(Calendar).merge(calendar, toUpdateCalendar);
 
   if (!checkUrl(calendar.url)) {
     res.status(400).send();

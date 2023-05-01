@@ -1,4 +1,4 @@
-import { Calendar, Settings, SimpleReplacement } from "./entity/Calendar";
+import { Calendar } from "./entity/Calendar";
 
 export function removeBadRegEx(calendar: Calendar): Calendar {
   for (let i = 0; i < calendar.settings.replacements.length; i++) {

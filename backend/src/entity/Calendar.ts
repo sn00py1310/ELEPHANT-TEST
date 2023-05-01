@@ -1,26 +1,40 @@
 import { randomUUID } from "crypto";
 import { Column, Entity, PrimaryColumn } from "typeorm";
+import { ValidateNested, IsUrl, Allow, Equals } from "class-validator";
+import { Type } from "class-transformer";
 
 
 
 
 export class Settings {
+    @Type(() => SimpleReplacement)
+    @ValidateNested({ each: true })
+    @Allow()
     replacements: SimpleReplacement[] = []
 }
 
 
 export class SimpleReplacement {
-  mode: string = "globalRegex"
+  @Allow()
+  @Equals("globalRegex")
+  mode: string;
+  @Allow()
   pattern: string;
+  @Allow()
   replacement: string;
 }
 
 @Entity()
 export class CreateCalendar {
   @Column({type: "simple-json", nullable: false})
+  @ValidateNested({ each: true })
+  @Type(() => Settings)
+  @Allow()
   settings: Settings = new Settings();
-  @Column({type: "simple-json", nullable: false})
-  url: URL;
+
+  @Column({nullable: false})
+  @IsUrl()
+  url: string;
 }
 
 @Entity()
