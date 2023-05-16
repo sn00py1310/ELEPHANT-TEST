@@ -16,8 +16,7 @@ export class Settings {
 
 export class SimpleReplacement {
   @Allow()
-  @Equals("globalRegex")
-  mode: string;
+  mode: "globalRegex";
   @Allow()
   pattern: string;
   @Allow()

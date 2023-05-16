@@ -1,12 +1,12 @@
 import { Request, Response, Router } from "express";
 import fetch from "node-fetch";
-import { checkUrl, getCalendarById } from ".";
+import { getCalendarById } from ".";
 import { AppDataSource } from "../data-source";
 import { Calendar, CreateCalendar } from "../entity/Calendar";
 import { replacer } from "../replacer";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
-import { removeBadRegEx } from "../util";
+import { removeBadRegEx, checkUrl } from "../util";
 
 const router = Router();
 export default router;
@@ -23,7 +23,7 @@ router.post("/", async function (req: Request, res: Response) {
   }
 
   calendar = AppDataSource.manager.create(Calendar, calendar);
-  calendar = removeBadRegEx(calendar);
+  calendar.settings = removeBadRegEx(calendar.settings);
 
   const results = await AppDataSource.getRepository(Calendar).save(calendar);
   return res.send(results);

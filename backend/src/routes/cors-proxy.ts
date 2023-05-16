@@ -1,5 +1,5 @@
 import { Request, Response, Router } from "express";
-import { checkUrl } from ".";
+import { checkUrl } from "../util";
 import fetch from "node-fetch";
 
 const router = Router();

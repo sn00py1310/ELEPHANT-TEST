@@ -5,3 +5,5 @@ build/
 tmp/
 temp/
 database.sqlite
+coverage
+jest.config.js

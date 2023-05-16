@@ -9,21 +9,6 @@ export default {
   corsProxy,
 };
 
-export function checkUrl(input: string | URL): boolean {
-  let url: URL;
-  try {
-    url = new URL(input.toString());
-  } catch (error: any) {
-    return false;
-  }
-
-  if (url.protocol != "https:") return false;
-  if (url.host != "campus.kit.edu") return false;
-  if (!url.pathname.startsWith("/sp/webcal/")) return false;
-
-  return true;
-}
-
 export async function getCalendarById(id: string): Promise<Calendar> {
   const result = await AppDataSource.getRepository(Calendar).findOneBy({
     id: id,
