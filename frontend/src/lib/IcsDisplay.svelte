@@ -19,9 +19,7 @@
 </script>
 
 <div bind:this={self} on:scroll={scrolling}>
-  <span>
-    {@html $display}
-  </span>
+  <pre>{@html $display}</pre>
 </div>
 
 <style>
@@ -31,7 +29,7 @@
     position: relative;
   }
 
-  span {
+  pre {
     white-space: pre;
   }
 </style>

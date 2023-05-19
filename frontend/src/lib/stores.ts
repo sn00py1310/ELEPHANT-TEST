@@ -1,5 +1,6 @@
 import { derived, writable, get } from "svelte/store";
 import type { SimpleReplacement } from "./ApiRequest/Api";
+import { escapeHtml } from "./util";
 
 export const icsData = writable("");
 export const regex = writable("");
@@ -69,21 +70,25 @@ export const createHighLight = (
     [icsData, _regex, replace],
     ([ics, regex, replacement], set) => {
       if (ics.match(regex)?.length > maxMatches) {
-        set(ics);
+        set(escapeHtml(ics));
         return;
       }
-      set(
-        doReplace // the match callback overload does not support matching groups
-          ? ics.replace(
-              regex,
-              `<span class="${classString} highlight">${replacement}</span>`
-            )
-          : ics.replace(
-              regex,
-              (match) =>
-                `<span class="${classString} highlight">${match}</span>`
-            )
-      );
+
+      let highlightSecurityId = crypto.randomUUID();
+      let beginHighlightSecure = `__BEGIN_HIGHLIGHT_${highlightSecurityId}__`;
+      let beginHighlightElement = `<span class="${classString} highlight">`
+      let endHighlightSecure = `__END_HIGHLIGHT_${highlightSecurityId}__`;
+      let endHighlightElement = "</span>";
+      
+      let secureIcs;
+      // the match callback overload does not support matching groups
+      if (doReplace) secureIcs = ics.replace(regex, `${beginHighlightSecure}${replacement}${endHighlightSecure}`)
+      else secureIcs = ics.replace(regex, (match) => `${beginHighlightSecure}${match}${endHighlightSecure}`);
+
+      let nextIcs = escapeHtml(secureIcs)
+        .replaceAll(beginHighlightSecure, beginHighlightElement)
+        .replaceAll(endHighlightSecure, endHighlightElement)
+      set(nextIcs);
     }
   );
 };
