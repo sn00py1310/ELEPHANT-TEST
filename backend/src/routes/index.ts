@@ -1,5 +1,6 @@
 import calendar from "./calendar";
 import corsProxy from "./cors-proxy";
+import admin from "./admin";
 
 import { AppDataSource } from "../data-source";
 import { Calendar } from "../entity/Calendar";
@@ -7,6 +8,7 @@ import { Calendar } from "../entity/Calendar";
 export default {
   calendar,
   corsProxy,
+  admin,
 };
 
 export async function getCalendarById(id: string): Promise<Calendar | null> {
