@@ -8,7 +8,7 @@ import routes from "./routes";
 import { LessThan } from "typeorm";
 dotenv.config();
 
-const cleanuptInterval = Number(process.env.CALENDAR_CLEANUP_INTERVAL ?? 30); //in minutes
+const cleanupInterval = Number(process.env.CALENDAR_CLEANUP_INTERVAL ?? 30); //in minutes
 const keepTime = Number(process.env.CALENDAR_KEEP_TIME ?? 30); //in days
 const PORT = Number(process.env.PORT ?? 3000);
 const CALENDAR_LISTING = (process.env.CALENDAR_LISTING ?? "") == "true";
@@ -40,7 +40,7 @@ async function clearCalendars() {
     AppDataSource.getRepository(Calendar).delete(oldCalendarIds);
   }
 
-  setTimeout(clearCalendars, cleanuptInterval * 60 * 1000);
+  setTimeout(clearCalendars, cleanupInterval * 60 * 1000);
 }
 
 // create and setup express app
@@ -72,10 +72,7 @@ app.get("/health/status", async function (req: Request, res: Response) {
 
 // Show all calendar
 app.get("/calendars", async function (req: Request, res: Response) {
-  if (!CALENDAR_LISTING) {
-    res.status(403).send();
-    return;
-  }
+  if (!CALENDAR_LISTING) return res.status(403).send();
 
   const calendars = await AppDataSource.getRepository(Calendar).find();
   res.json(calendars);

@@ -9,14 +9,18 @@ export default {
   corsProxy,
 };
 
-export async function getCalendarById(id: string): Promise<Calendar> {
-  const result = await AppDataSource.getRepository(Calendar).findOneBy({
+export async function getCalendarById(id: string): Promise<Calendar | null> {
+  const calendar = await AppDataSource.getRepository(Calendar).findOneBy({
     id: id,
   });
-  if (!result) return result;
-  AppDataSource.getRepository(Calendar).merge(result, {
-    last_access: new Date(),
-  });
-  await AppDataSource.getRepository(Calendar).save(result);
-  return result;
+  if (!calendar) return calendar;
+
+  await updateCalendarLastAccess(calendar);
+  return calendar;
+}
+
+
+export async function updateCalendarLastAccess(calendar: Calendar): Promise<void> {
+  calendar.last_access = new Date();
+  await AppDataSource.getRepository(Calendar).save(calendar);
 }

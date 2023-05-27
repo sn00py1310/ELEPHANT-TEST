@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { Column, Entity, PrimaryColumn } from "typeorm";
-import { ValidateNested, IsUrl, Allow, Equals } from "class-validator";
+import { ValidateNested, IsUrl, Allow } from "class-validator";
 import { Type } from "class-transformer";
 
 
@@ -43,4 +43,3 @@ export class Calendar extends CreateCalendar {
   @Column({nullable: false})
   last_access: Date = new Date();
 }
-

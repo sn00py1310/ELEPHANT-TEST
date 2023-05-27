@@ -6,21 +6,12 @@ const router = Router();
 export default router;
 
 router.get("/", async function (req: Request, res: Response) {
-  if (req.query.url === undefined) {
-    res.status(404).send();
-    return;
-  }
-  if (typeof req.query.url !== "string") {
-    res.status(400).send();
-    return;
-  }
-
+  if (!req.query.url) return res.status(404).send();
+  if (typeof req.query.url !== "string") return res.status(400).send();
 
   let url = req.query.url;
-  if (!checkUrl(url)) {
-    res.status(403).send();
-    return;
-  }
+  if (!checkUrl(url)) return res.status(403).send();
+
   const calResponse = await fetch(url);
   const body = await calResponse.text();
 

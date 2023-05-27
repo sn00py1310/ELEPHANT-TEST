@@ -17,10 +17,7 @@ router.post("/", async function (req: Request, res: Response) {
   if (errors.length) return res.status(400).json(errors);
   let calendar = plainToClass(Calendar, createCalendar);
 
-  if (!checkUrl(calendar.url)) {
-    res.status(400).send();
-    return;
-  }
+  if (!checkUrl(calendar.url)) return res.status(400).send();
 
   calendar = AppDataSource.manager.create(Calendar, calendar);
   calendar.settings = removeBadRegEx(calendar.settings);
@@ -30,18 +27,18 @@ router.post("/", async function (req: Request, res: Response) {
 });
 
 router.delete("/:id", async function (req: Request, res: Response) {
-  const results = await AppDataSource.getRepository(Calendar).delete(
+  const calendar = await AppDataSource.getRepository(Calendar).delete(
     req.params.id
   );
 
-  if (results === null) res.status(404);
-  return res.send(results);
+  if (!calendar) res.status(404);
+  return res.send(calendar);
 });
 
 router.get("/:id/settings", async function (req: Request, res: Response) {
-  const results = await getCalendarById(req.params.id);
-  if (results === null) res.status(404);
-  return res.send(results);
+  const calendar = await getCalendarById(req.params.id);
+  if (!calendar) res.status(404);
+  return res.send(calendar);
 });
 
 router.put("/:id/settings", async function (req: Request, res: Response) {
@@ -51,12 +48,10 @@ router.put("/:id/settings", async function (req: Request, res: Response) {
   let toUpdateCalendar = plainToClass(Calendar, createCalendar);
 
   const calendar = await getCalendarById(req.params.id);
-  AppDataSource.getRepository(Calendar).merge(calendar, toUpdateCalendar);
+  if (!calendar) return res.status(404);
 
-  if (!checkUrl(calendar.url)) {
-    res.status(400).send();
-    return;
-  }
+  AppDataSource.getRepository(Calendar).merge(calendar, toUpdateCalendar);
+  if (!checkUrl(calendar.url)) return res.status(400).send();
 
   const results = await AppDataSource.getRepository(Calendar).save(calendar);
 
@@ -76,14 +71,8 @@ router.get("/:id", async function (req: Request, res: Response) {
   
   const calendar = await getCalendarById(req.params.id);
 
-  if (calendar === null) {
-    res.status(404).send();
-    return;
-  }
-  if (!checkUrl(calendar.url)) {
-    res.status(400).send();
-    return;
-  }
+  if (!calendar) return res.status(404).send();
+  if (!checkUrl(calendar.url)) return res.status(400).send();
 
 
   const data = await fetch(calendar.url.toString());
