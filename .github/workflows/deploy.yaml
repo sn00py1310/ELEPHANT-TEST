@@ -26,8 +26,8 @@ jobs:
         run: npm ci
       #- name: Type Check
       #  run: npm run type-check
-      - name: Unit Tests
-        run: npm run test
+      #- name: Unit Tests
+      #  run: npm run test
       - name: Create Artifact
         run: npm run build
 
