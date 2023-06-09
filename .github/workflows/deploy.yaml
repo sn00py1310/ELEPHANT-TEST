@@ -1,0 +1,55 @@
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    name: Build frontend
+    runs-on: ubuntu-latest
+    # Required for GH OIDC
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Node and Cache
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.18
+          cache: npm
+
+      - name: Change to frontend
+        run: cd frontend
+
+      - name: Install dependencies
+        run: npm ci
+      - name: Type Check
+        run: npm run type-check
+      - name: Unit Tests
+        run: npm run test
+      - name: Create Artifact
+        run: npm run build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./build
+
+      - name: Deploy
+        uses: actions/deploy-pages@v1
+
+  deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
