@@ -13,7 +13,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        working-directory: ./frontend
 
       - name: Setup Node and Cache
         uses: actions/setup-node@v3
@@ -23,15 +22,18 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        working-directory: ./frontend
       #- name: Type Check
       #  run: npm run type-check
       #- name: Unit Tests
       #  run: npm run test
       - name: Create Artifact
         run: npm run build
+        working-directory: ./frontend
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
+        working-directory: ./frontend
         with:
           path: ./dist
 
